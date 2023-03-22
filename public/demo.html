@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.22.1/min/moment-with-locales.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jquery-touchswipe@1.6.18/jquery.touchSwipe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/eonasdan-bootstrap-datetimepicker@4.17.47/build/js/bootstrap-datetimepicker.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/arrobefr-jquery-calendar@1.0.12/dist/js/jquery-calendar.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/arrobefr-jquery-calendar@1.0.12/dist/css/jquery-calendar.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/pouchdb@6.4.3/dist/pouchdb.min.js"></script>
+  <title>Calendar Test</title>
+</head>
+<body>
+  <div class="container-fluid">
+    <!-- A title ! -->
+    <div class="row">
+      <div class="col-xs-12">
+        <h1>Things to Do Calendar demo <small></small></h1>
+        <a href="https://github.com/ArrobeFr/jquery-calendar"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12">
+        <!-- Button to open create modal -->
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-create">
+          <i class="glyphicon glyphicon-plus"></i> Create an event
+        </button>
+        <!-- Button to random generate events -->
+        <button type="button" class="btn btn-info" id="random">
+          <i class="glyphicon glyphicon-gift"></i> Add a random event
+        </button>
+        <hr class="featurette-divider">
+      </div>
+    </div>
+    <!-- The calendar -->
+    <div class="row">
+      <div class="col-xs-12">
+        <div id="calendar"></div>
+      </div>
+    </div>  
+  </div>
+  <!-- Create modal -->
+  <div id="modal-create" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Create an event</h4>
+        </div>
+        <div class="modal-body">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-xs-12">
+                <!-- Create form -->
+                <form id="form-create" class="form">
+                  <input type="text" placeholder="From" class="start form-control dtp">
+                  <input type="text" placeholder="To" class="end form-control dtp">
+                  <input type="text" placeholder="Title" class="title form-control">
+                  <textarea placeholder="Content" class="content form-control"></textarea>
+                  <input type="text" placeholder="Category" class="category form-control">
+                  <!-- Create button -->
+                  <button type="submit" class="btn btn-success">
+                    <i class="glyphicon glyphicon-plus"></i> Create
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Update and delete modal -->
+  <div id="modal-update" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Update an event</h4>
+        </div>
+        <div class="modal-body">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col-xs-12">
+                <!-- Update form -->
+                <form id="form-update" class="form">
+                  <input type="hidden" class="_id">
+                  <input type="hidden" class="_rev">
+                  <input type="text" placeholder="From" class="start form-control dtp">
+                  <input type="text" placeholder="To" class="end form-control dtp">
+                  <input type="text" placeholder="Title" class="title form-control">
+                  <textarea placeholder="Content" class="content form-control"></textarea>
+                  <input type="text" placeholder="Category" class="category form-control">
+                  <!-- Update button -->
+                  <button type="submit" class="btn btn-warning">
+                    <i class="glyphicon glyphicon-pencil"></i> Update
+                  </button>
+                  <!-- Update button -->
+                  <button type="button" class="btn btn-danger pull-right delete">
+                    <i class="glyphicon glyphicon-trash"></i> Delete
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(function(){
+      $('.dtp').datetimepicker();
+
+      var Calendar = $('#calendar').Calendar();
+      Calendar.init();
+      console.log(Calendar);
+
+      var eventsDB = new PouchDB('events');
+
+      function UUID4(){
+        function S4() {
+          return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+        }
+        return (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+      }
+
+      /**
+       * GET
+       */
+      eventsDB.allDocs({
+        include_docs: true
+      }).then(function(result){
+        var events = [];
+        for (var i=0; i<result.rows.length; i++){
+          events.push({
+            _id: result.rows[i].doc._id,
+            _rev: result.rows[i].doc._rev,
+            start: result.rows[i].doc.start,
+            end: result.rows[i].doc.end,
+            title: result.rows[i].doc.title,
+            content: result.rows[i].doc.content,
+            category: result.rows[i].doc.category
+          });
+        }
+        Calendar.addEvents(events);
+        Calendar.init();
+      }).catch(function (err){
+        console.error(err);
+      });
+
+      /**
+       * CREATE
+       */
+      $('#form-create').on('submit', function(event){
+        event.preventDefault();
+        var form = $(event.target);
+        var e = {
+          _id: UUID4(),
+          start: form.find('.start').data("DateTimePicker").date().unix(),
+          end: form.find('.end').data("DateTimePicker").date().unix(),
+          title: form.find('.title').val(),
+          content: form.find('.content').val().replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1<br>$2'),
+          category: form.find('.category').val()
+        };
+        eventsDB.put(e).then(function(response){
+          e._rev = response.rev;
+          Calendar.addEvents(e);
+          Calendar.init();
+          $('#modal-create').modal('hide');
+        }).catch(function(err){
+          console.error(err);
+        });
+      });
+
+      /**
+       * UPDATE and DELETE event : replace the default modal by our modal (#modal-update)
+       */
+      $('#calendar').unbind('Calendar.event-click').on('Calendar.event-click', function(event, instance, elem, evt){
+        $('#form-update').find('._id').val(evt._id);
+        $('#form-update').find('._rev').val(evt._rev);
+        $('#form-update').find('.start').data("DateTimePicker").date(moment.unix(evt.start));
+        $('#form-update').find('.end').data("DateTimePicker").date(moment.unix(evt.end));
+        $('#form-update').find('.title').val(evt.title);
+        $('#form-update').find('.content').val(evt.content.replace(/<br>/g, '\n'));
+        $('#form-update').find('.category').val(evt.category);
+        $('#modal-update').modal('show');
+      });
+
+      /**
+       * UPDATE
+       */
+      $('#form-update').on('submit', function(event){
+        event.preventDefault();
+        var form = $(event.target);
+        var e = {
+          _id: form.find('._id').val(),
+          _rev: form.find('._rev').val(),
+          start: form.find('.start').data("DateTimePicker").date().unix(),
+          end: form.find('.end').data("DateTimePicker").date().unix(),
+          title: form.find('.title').val(),
+          content: form.find('.content').val().replace(/\n/g, '<br>'),
+          category: form.find('.category').val()
+        };
+        eventsDB.put(e).then(function(response){
+          var events = Calendar.getEvents();
+          for (var i=0; i<events.length; i++){
+            if (events[i]._id == e._id){
+              events[i]._rev = response.rev;
+              events[i].start = e.start;
+              events[i].end = e.end;
+              events[i].title = e.title;
+              events[i].content = e.content;
+              events[i].category = e.category;
+            }
+          }
+          Calendar.init();
+          $('#modal-update').modal('hide');
+        }).catch(function(err){
+          console.error(err);
+        });
+      });
+
+      /**
+       * DELETE
+       */
+      $('#form-update').find('.delete').click(function(){
+        var form = $('#form-update');
+        eventsDB.remove(form.find('._id').val(), form.find('._rev').val()).then(function(response){
+          var events = Calendar.getEvents();
+          for (var i=0; i<events.length; i++){
+            if (events[i]._id == response.id){
+              events.splice(i, 1);
+            }
+          }
+          Calendar.init();
+          $('#modal-update').modal('hide');
+        }).catch(function(err){
+          console.error(err);
+        });
+      });
+
+      /**
+       * Random event
+       */
+      $('#random').click(function(){
+        $(this).attr("disabled", true);
+        var titles = [
+          'A New Hope',
+          'The Empire Strikes Back',
+          'Return of the Jedi',
+          'The Phantom Menace',
+          'Attack of the Clones',
+          'Revenge of the Sith',
+          'The Force Awakens',
+          'The Last Jedi',
+          'Darth Vader',
+          'Obi-Wan Kenobi',
+          'Luke Skywalker',
+          'Han Solo',
+          'Princess Leia'
+        ];
+        var contents = [
+          'It is a period of civil war. Rebel spaceships, striking from a hidden base, have won their first victory against the evil Galactic Empire. During the battle, Rebel spies managed to steal secret plans to the Empire’s ultimate weapon, the DEATH STAR, an armored space station with enough power to destroy an entire planet.',
+          'Pursued by the Empire’s sinister agents, Princess Leia races home aboard her starship, custodian of the stolen plans that can save her people and restore freedom to the galaxy…',
+          'It is a dark time for the Rebellion. Although the Death Star has been destroyed, Imperial troops have driven the Rebel forces from their hidden base and pursued them across the galaxy.',
+          'Evading the dreaded Imperial Starfleet, a group of freedom fighters led by Luke Skywalker has established a new secret base on the remote ice world of Hoth.',
+          'The evil lord Darth Vader, obsessed with finding young Skywalker, has dispatched thousands of remote probes into the far reaches of space….',
+          'Luke Skywalker has returned to his home planet of Tatooine in an attempt to rescue his friend Han Solo from the clutches of the vile gangster Jabba the Hutt.',
+          'Little does Luke know that the GALACTIC EMPIRE has secretly begun construction on a new armored space station even more powerful than the first dreaded Death Star.',
+          'When completed, this ultimate weapon will spell certain doom for the small band of rebels struggling to restore freedom to the galaxy...',
+          'Turmoil has engulfed the Galactic Republic. The taxation of trade routes to outlying star systems is in dispute.',
+          'Hoping to resolve the matter with a blockade of deadly battleships, the greedy Trade Federation has stopped all shipping to the small planet of Naboo.',
+          'While the congress of the Republic endlessly debates this alarming chain of events, the Supreme Chancellor has secretly dispatched two Jedi Knights, the guardians of peace and justice in the galaxy, to settle the conflict....',
+          'There is unrest in the Galactic Senate. Several thousand solar systems have declared their intentions to leave the Republic. This separatist movement, under the leadership of the mysterious Count Dooku, has made it difficult for the limited number of Jedi Knights to maintain peace and order in the galaxy.',
+          'Senator Amidala, the former Queen of Naboo, is returning to the Galactic Senate to vote on the critical issue of creating an ARMY OF THE REPUBLIC to assist the overwhelmed Jedi....',
+          'War! The Republic is crumbling under attacks by the ruthless Sith Lord, Count Dooku. There are heroes on both sides. Evil is everywhere. In a stunning move, the fiendish droid leader, General Grievous, has swept into the Republic capital and kidnapped Chancellor Palpatine, leader of the Galactic Senate.',
+          'As the Separatist Droid Army attempts to flee the besieged capital with their valuable hostage, two Jedi Knights lead a desperate mission to rescue the captive Chancellor....'
+        ];
+        var categories = [
+          'Alderaan',
+          'Jedi',
+          'Force',
+          'Bespin',
+          'Corellia',
+          'Coruscant',
+          'Dagobah',
+          'Dantooine',
+          'Dathomir',
+          'Devaron',
+          'Endor',
+          'Géonosis',
+          'Hoth',
+          'Kamino',
+          'Kashyyyk',
+          'Kessel',
+          'Mon Cala',
+          'Mustafar',
+          'Naboo',
+          'Ryloth',
+          'Tatooine',
+          'Yavin IV'
+        ];
+        var interval = Calendar.getViewInterval();
+        var min = interval[0];
+        var max = interval[1] - (30 * 60);
+        var from = parseInt(Math.random() * (max - min) + min);
+        var to = parseInt(Math.random() * (parseInt(moment.unix(from).endOf('day').subtract(1, 'h').format('X')) - (from + 30 * 60)) + (from + 600));
+        var title = titles[parseInt(Math.random() * (titles.length - 1))];
+        var content = contents[parseInt(Math.random() * (contents.length - 1))];
+        var category = categories[parseInt(Math.random() * (categories.length - 1))];
+        var e = {
+          _id: UUID4(),
+          start: from,
+          end: to,
+          title: title,
+          content: content,
+          category: category
+        };
+        eventsDB.put(e).then(function(response){
+          e._rev = response.rev;
+          Calendar.addEvents(e);
+          Calendar.init();
+          $('#random').removeAttr("disabled");
+        }).catch(function(err){
+          console.error(err);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

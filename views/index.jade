@@ -1,0 +1,100 @@
+extends layout
+block content
+     h1 #{title}
+     br
+     form(action="/completeevent", method="post")
+      table.table.table-striped.table-bordered
+         thead
+           td Event Name
+           td Category
+           td Start Date
+           td End Date
+           td Location
+           td Cost
+           td Additional Information
+         if (typeof events === "undefined")
+           tr
+             td
+         else
+           each event  in events 
+             tr
+               td #{event.name}
+               td #{event.category}
+               td #{prettyDate(event.start_date)}
+               td #{prettyDate(event.end_date)}
+               td #{event.location}
+               td #{event.cost}
+               td #{event.additional_information}
+       button.btn.btn-primary(type="submit") Complete events
+     hr
+     form.well(action="/addevent", method="post")
+       label Event Name:
+       input(name="name", type="textbox")
+       br
+       label Start Date:
+       input(name="start_date", type="datetime-local")
+       br
+       label End Date:
+       input(name="end_date", type="datetime-local")
+       br
+       label Event Category:
+       input(name="category", type="textbox")
+       br
+       label Event Location:
+       input(name="location", type="textbox")
+       br
+       label Event Cost:
+       input(name="cost", type="textbox")
+       br
+       label Additional Information:
+       input(name="additional_information", type="textbox")
+       br
+       button.btn(type="submit") Add item
+     hr
+     form(action="/completeevent", method="post")
+      table.table.table-striped.table-bordered
+         tr
+           td Name
+           td Category
+           td Date
+           td Complete
+         if (typeof events === "undefined")
+           tr
+             td
+         else
+           each event  in events 
+             tr
+               td #{event.name}
+               td #{event.category}
+               - var date  = new Date(event.date);
+               - var day   = date.getDate();
+               - var month = date.getMonth() + 1;
+               - var year  = date.getFullYear();
+               td #{month + "/" + day + "/" + year}
+               td
+                if(event.completed) 
+                 input(type="checkbox", disabled, name="#{event.id}", value="#{!event.completed}", checked=event.completed)
+                else
+                 input(type="checkbox", name="#{event.id}", value="#{!event.completed}", checked=event.completed)
+       button.btn.btn-primary(type="submit") Complete events
+      .container-fluid
+        .row
+          .col-xs-12
+            #calendar
+      // Execute your JavaScript code after the libraries are loaded
+      script.
+        $(document).ready(function(){
+          moment.locale('en');
+          var now = moment();
+          $('#calendar').calendar({
+            events: [
+              { // An event on the current week on Wednesday from 10h to 12h
+                start: now.startOf('week').isoWeekday(3).startOf('day').add(10, 'h'),
+                end: now.startOf('week').isoWeekday(3).startOf('day').add(12, 'h'),
+                title: 'An event title !',
+                content: 'Hello World! <br>Foo Bar<p class="text-right">Wow this text is right aligned !</p>',
+                category: 'A test category name'
+              }
+            ]
+          }).init();
+        });

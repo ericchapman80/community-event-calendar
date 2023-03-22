@@ -1,0 +1,67 @@
+doctype html
+html(lang='en')
+-function prettyDate(dateString){
+    if dateString 
+      -var date = new Date(dateString);
+      -var day = date.getDate();
+      -var month = date.getMonth() + 1;
+      -var year = date.getFullYear();
+      -return month + "/" + day + "/" + year;
+    else 
+     return
+-}
+head
+    title= title
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible' content='IE=edge')
+    meta(name='viewport' content='width=device-width, initial-scale=1')
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel='stylesheet' href='/bootstrap/css/bootstrap.min.css')
+    link(rel='stylesheet' href='/stylesheets/bootstrap-datetimepicker.min.css')
+    script(src='/jquery/jquery.min.js')
+    script(src='/bootstrap/js/bootstrap.min.js')
+    script(src='/moment/moment-with-locales.min.js')
+    script(src='/jquery-touchswipe/jquery.touchSwipe.min.js')
+    script(src='/javascripts/bootstrap-datetimepicker.min.js')
+    script(src='/jquery-calendar/dist/js/jquery-calendar.min.js')
+    script(src='/javascripts/pouchdb.min.js')
+    link(rel='stylesheet' href='/jquery-calendar/dist/css/jquery-calendar.min.css')
+
+  body
+    nav.navbar.navbar-inverse.navbar-fixed-top
+      div.navbar-header
+        a.navbar-brand(href='#') SWVA Community Events
+        div.collapse.navbar-collapse       
+          .ul.navbar-nav
+            li.nav-item
+              a.nav-link(href="#") Home
+            li.nav-item
+              a.nav-link(href="") About
+            li.nav-item
+              a.nav-link(href="") Articles
+            li.nav-item
+              a.nav-link(href="") Events
+            li.nav-item
+              a.nav-link(href="") Contact
+    //- nav.navbar.navbar-inverse.navbar-fixed-top
+    //-   .navbar-inner
+    //-     .conatiner 
+    //-       button.btn.btn-navbar(type="button", data-toggle="collapse", data-target=".nav-collapse")
+    //-         span.icon-bar
+    //-         span.icon-bar 
+    //-         span.icon-bar 
+    //-       a.brand(href="/") Navbar w/ menu 
+    //-       .nav-collapse.collapse 
+    //-         .ul.nav 
+    //-           li  
+    //-             a(href="#") Home 
+    //-           li 
+    //-             a(href="#") About 
+    //-         form.navbar-form.pull-right
+    //-           input.span2(type="text", placeholder="Email")
+    //-           input.span2(type="text", placeholder="Password")
+    //-           button.btn(type="submit") Sign In
+    block content
+   
+    
+    
