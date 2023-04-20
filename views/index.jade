@@ -52,31 +52,6 @@ block content
        button.btn(type="submit") Add item
      hr
      form(action="/completeevent", method="post")
-      table.table.table-striped.table-bordered
-         tr
-           td Name
-           td Category
-           td Date
-           td Complete
-         if (typeof events === "undefined")
-           tr
-             td
-         else
-           each event  in events 
-             tr
-               td #{event.name}
-               td #{event.category}
-               - var date  = new Date(event.date);
-               - var day   = date.getDate();
-               - var month = date.getMonth() + 1;
-               - var year  = date.getFullYear();
-               td #{month + "/" + day + "/" + year}
-               td
-                if(event.completed) 
-                 input(type="checkbox", disabled, name="#{event.id}", value="#{!event.completed}", checked=event.completed)
-                else
-                 input(type="checkbox", name="#{event.id}", value="#{!event.completed}", checked=event.completed)
-       button.btn.btn-primary(type="submit") Complete events
       .container-fluid
         .row
           .col-xs-12
