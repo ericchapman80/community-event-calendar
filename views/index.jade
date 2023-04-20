@@ -65,7 +65,18 @@ block content
           Calendar.init();
           console.log(Calendar);
 
-          var events = !{JSON.stringify(events)};
+          -var dbevents = !{JSON.stringify(events)};
+          -var newItems = [];
 
-          Calendar.addEvents(events);
+          each item in dbevents
+            - var newItem = {
+                start: item.start_date,
+                end: item.end_date,
+                title: item.name,
+                content: item.additional_information,
+                category: item.category
+              }
+            - newItems.push(newItem);
+
+          Calendar.addEvents(newItems);
         });
