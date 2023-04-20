@@ -65,11 +65,11 @@ block content
           Calendar.init();
           console.log(Calendar);
 
-          -var dbevents = !{JSON.stringify(events)};
-          -var newItems = [];
+          var dbevents = !{JSON.stringify(events)};
+          var newItems = [];
 
           each item in dbevents
-            - var newItem = {
+            -var newItem = {
                 start: item.start_date,
                 end: item.end_date,
                 title: item.name,
