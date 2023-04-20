@@ -83,18 +83,14 @@ block content
             #calendar
       // Execute your JavaScript code after the libraries are loaded
       script.
-        $(document).ready(function(){
-          moment.locale('en');
-          var now = moment();
-          $('#calendar').calendar({
-            events: [
-              { // An event on the current week on Wednesday from 10h to 12h
-                start: now.startOf('week').isoWeekday(3).startOf('day').add(10, 'h'),
-                end: now.startOf('week').isoWeekday(3).startOf('day').add(12, 'h'),
-                title: 'An event title !',
-                content: 'Hello World! <br>Foo Bar<p class="text-right">Wow this text is right aligned !</p>',
-                category: 'A test category name'
-              }
-            ]
-          }).init();
+        $(document).ready(function() {
+          $('.dtp').datetimepicker();
+
+          var Calendar = $('#calendar').Calendar();
+          Calendar.init();
+          console.log(Calendar);
+
+          var events = !{JSON.stringify(events)};
+
+          Calendar.addEvents(events);
         });
