@@ -51,16 +51,15 @@ block content
        br
        button.btn(type="submit") Add item
      hr
-     form(action="/completeevent", method="post")
-      .container-fluid
-        .row
-          .col-xs-12
-            #calendar
+     .container-fluid
+      .row
+       .col-xs-12
+        #calendar
       // Execute your JavaScript code after the libraries are loaded
       script.
         $(document).ready(function() {
           $('.dtp').datetimepicker();
-
+          moment.locale('en-au');
           var Calendar = $('#calendar').Calendar();
           console.log(Calendar);
           var dbevents = !{JSON.stringify(events)};
@@ -70,7 +69,7 @@ block content
             var endDate =   Date.parse(item.end_date) / 1000;
             var newItem = {
               start: startDate,
-              end: endDate,
+              end: startDate,
               title: item.name,
               content: item.additional_information,
               category: item.category,
