@@ -60,16 +60,23 @@ block content
         $(document).ready(function() {
           $('.dtp').datetimepicker();
           moment.locale('en-au');
+          var now = moment();
           var Calendar = $('#calendar').Calendar();
+          Calendar.init();
           console.log(Calendar);
           var dbevents = !{JSON.stringify(events)};
           var newItems = [];
           dbevents.forEach(function(item) {
-            var startDate =  Date.parse(item.start_date) / 1000;
-            var endDate =   Date.parse(item.end_date) / 1000;
+            var startDate = Date.parse(item.start_date) / 1000;
+            var endDate;
+            if (item.end_date) {
+              endDate = Date.parse(item.end_date) / 1000;
+            } else {
+              endDate = startDate;
+            }
             var newItem = {
               start: startDate,
-              end: startDate,
+              end: endDate,
               title: item.name,
               content: item.additional_information,
               category: item.category,
@@ -80,7 +87,6 @@ block content
           });
 
           Calendar.addEvents(newItems);
-          Calendar.init();
            // Listening for events
           $('#calendar').on('Calendar.init', function(event, instance, before, current, after){
             console.log('event : Calendar.init');
