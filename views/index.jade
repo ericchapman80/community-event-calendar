@@ -59,10 +59,11 @@ block content
       script.
         $(document).ready(function() {
           $('.dtp').datetimepicker();
-          moment.locale('en-au');
+          moment.locale('en');
           var now = moment();
-          var Calendar = $('#calendar').Calendar();
-          Calendar.init();
+          var Calendar = $('#calendar').Calendar({
+            locale: 'en'
+          }).init();
           console.log(Calendar);
           var dbevents = !{JSON.stringify(events)};
           var newItems = [];
